@@ -45,6 +45,9 @@ module.exports = function (sequelize, DataTypes) {
       tableName: "PT_USUARIO",
       schema: "dbo",
       timestamps: false,
+      defaultScope: {
+        attributes: { exclude: ["PASSWORD", "FECHA_ELIMINO"] },
+      },
       indexes: [
         {
           name: "PK_PT_USUARIO",

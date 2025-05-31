@@ -4,6 +4,8 @@ const cors = require("cors");
 require("dotenv").config();
 const fs = require("fs");
 const path = require("path");
+const swaggerUi = require("swagger-ui-express");
+const swaggerSpec = require("./config/swagger");
 
 const app = express();
 app.use(
@@ -12,6 +14,7 @@ app.use(
   })
 );
 app.use(express.json());
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 const config = {
   user: process.env.DB_USER,
@@ -32,16 +35,6 @@ fs.readdirSync(routesPath).forEach((file) => {
     const route = require(path.join(routesPath, file));
     const routeName = `/api/${file.replace(".routes.js", "")}`;
     app.use(routeName, route);
-  }
-});
-
-app.get("/api", async (req, res) => {
-  try {
-    await sql.connect(config);
-    const result = await sql.query("SELECT GETDATE() AS fecha");
-    res.json(result.recordset[0]);
-  } catch (err) {
-    res.status(500).send(err.message);
   }
 });
 
