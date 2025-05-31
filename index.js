@@ -2,6 +2,8 @@ const express = require("express");
 const sql = require("mssql");
 const cors = require("cors");
 require("dotenv").config();
+const fs = require("fs");
+const path = require("path");
 
 const app = express();
 app.use(
@@ -22,6 +24,16 @@ const config = {
     trustServerCertificate: true,
   },
 };
+
+const routesPath = path.join(__dirname, "src/routes");
+
+fs.readdirSync(routesPath).forEach((file) => {
+  if (file.endsWith(".routes.js")) {
+    const route = require(path.join(routesPath, file));
+    const routeName = `/api/${file.replace(".routes.js", "")}`;
+    app.use(routeName, route);
+  }
+});
 
 app.get("/api", async (req, res) => {
   try {
