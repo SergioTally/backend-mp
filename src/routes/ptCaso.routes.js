@@ -286,4 +286,62 @@ router.post(
   ptCasoController.modificarEstado
 );
 
+/**
+ * @swagger
+ * /ptCaso/reporte/excel:
+ *   post:
+ *     summary: Generar reporte de casos en Excel
+ *     tags: [PtCaso]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - fechaInicio
+ *               - fechaFin
+ *             properties:
+ *               fechaInicio:
+ *                 type: string
+ *                 format: date
+ *                 example: "2024-01-01"
+ *               fechaFin:
+ *                 type: string
+ *                 format: date
+ *                 example: "2024-12-31"
+ *               estado:
+ *                 type: integer
+ *                 nullable: true
+ *                 example: 1
+ *               fiscal:
+ *                 type: integer
+ *                 nullable: true
+ *                 example: 3
+ *     responses:
+ *       200:
+ *         description: Archivo Excel generado exitosamente
+ *         content:
+ *           application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       400:
+ *         description: Datos inválidos o incompletos
+ *       401:
+ *         description: Token inválido o no proporcionado
+ *       403:
+ *         description: Acceso denegado por rol
+ *       500:
+ *         description: Error del servidor
+ */
+router.post(
+  "/reporte",
+  verifyToken,
+  authorizeRoles("ADMINISTRADOR", "FISCAL", "ANALISTA"),
+  ptCasoController.reporteExcel
+);
+
 module.exports = router;

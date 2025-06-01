@@ -65,3 +65,36 @@ exports.modificarEstado = async (req, res) => {
     res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
+
+exports.reporteExcel = async (req, res) => {
+  try {
+    const { fechaInicio, fechaFin, estado, idFiscal } = req.body;
+    const rol = req.user.rol;
+    const idUsuario = req.user.id;
+
+    if (!fechaInicio || !fechaFin) {
+      return res.status(400).json({ message: "Las fechas son obligatorias" });
+    }
+
+    const buffer = await ptCasoService.generarExcel({
+      fechaInicio,
+      fechaFin,
+      estado,
+      idFiscal,
+      rol,
+      idUsuario,
+    });
+
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=reporte_casos.xlsx"
+    );
+    res.send(buffer);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
