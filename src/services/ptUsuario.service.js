@@ -1,6 +1,8 @@
 const db = require("../../models");
 const ApiError = require("../utils/apiError");
 const Usuario = db.PT_USUARIO;
+const Sequelize = require("sequelize");
+const bcrypt = require("bcrypt");
 
 exports.getAll = async () => {
   try {
@@ -46,9 +48,13 @@ exports.update = async (id, data) => {
     const usuario = await Usuario.findByPk(id);
     if (!usuario) throw new ApiError("Usuario no encontrado", 404);
 
-    const { PASSWORD, ACTIVO } = data;
+    const updateData = { ...data };
 
-    return await usuario.update({ PASSWORD, ACTIVO });
+    if (updateData.PASSWORD) {
+      updateData.PASSWORD = await bcrypt.hash(updateData.PASSWORD, 10);
+    }
+
+    return await usuario.update(updateData);
   } catch (error) {
     throw new ApiError("Error al actualizar el usuario: " + error.message, 400);
   }
@@ -59,7 +65,10 @@ exports.remove = async (id) => {
     const usuario = await Usuario.findByPk(id);
     if (!usuario) throw new ApiError("Usuario no encontrado", 404);
 
-    await usuario.destroy();
+    await usuario.update({
+      FECHA_ELIMINO: Sequelize.literal("GETDATE()"),
+      ACTIVO: false,
+    });
     return usuario;
   } catch (error) {
     throw new ApiError("Error al eliminar el usuario: " + error.message, 400);

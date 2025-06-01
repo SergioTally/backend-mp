@@ -60,16 +60,16 @@ exports.login = async (req, res) => {
 };
 
 exports.register = async (req, res) => {
-  const { nombre, password, idRol } = req.body;
+  const { USERNAME, PASSWORD, idRol } = req.body;
 
   try {
     // Validar existencia de usuario
-    const existe = await Usuario.findOne({ where: { USERNAME: nombre } });
+    const existe = await Usuario.findOne({ where: { USERNAME } });
     if (existe) return res.status(400).json({ error: "El usuario ya existe" });
-    const hash = await bcrypt.hash(password, 10);
+    const hash = await bcrypt.hash(PASSWORD, 10);
 
     const nuevo = await Usuario.create({
-      USERNAME: nombre,
+      USERNAME,
       PASSWORD: hash,
       ACTIVO: true,
     });
