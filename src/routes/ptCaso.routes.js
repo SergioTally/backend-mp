@@ -214,4 +214,76 @@ router.delete(
   ptCasoController.remove
 );
 
+/**
+ * @swagger
+ * /ptCaso/asignarfiscal:
+ *   post:
+ *     summary: Asignar un fiscal a un caso
+ *     tags: [PtCaso]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               ID_CASO:
+ *                 type: integer
+ *               ID_FISCAL:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Fiscal asignado correctamente
+ *       400:
+ *         description: Datos inválidos
+ *       409:
+ *         description: Conflicto de fiscalía
+ *       500:
+ *         description: Error del servidor
+ */
+router.post(
+  "/asignarfiscal",
+  verifyToken,
+  authorizeRoles("ADMINISTRADOR"),
+  ptCasoController.asignarFiscal
+);
+
+/**
+ * @swagger
+ * /ptCaso/modificarestado:
+ *   post:
+ *     summary: Modificar el estado de un caso
+ *     tags: [PtCaso]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               ID_CASO:
+ *                 type: integer
+ *               ID_ESTADO_CASO:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Estado actualizado correctamente
+ *       400:
+ *         description: Datos inválidos
+ *       404:
+ *         description: Caso no encontrado
+ *       500:
+ *         description: Error del servidor
+ */
+router.post(
+  "/modificarestado",
+  verifyToken,
+  authorizeRoles("ADMINISTRADOR"),
+  ptCasoController.modificarEstado
+);
+
 module.exports = router;

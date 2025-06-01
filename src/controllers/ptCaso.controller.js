@@ -44,3 +44,24 @@ exports.remove = async (req, res) => {
     res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
+
+exports.asignarFiscal = async (req, res) => {
+  try {
+    const resultado = await ptCasoService.asignarFiscal(req.body, req.user.id);
+    res.json({ message: "Fiscal asignado", resultado });
+  } catch (error) {
+    res.status(error.statusCode || 500).json({ message: error.message });
+  }
+};
+
+exports.modificarEstado = async (req, res) => {
+  try {
+    const resultado = await ptCasoService.modificarEstado(
+      req.body,
+      req.user.id
+    );
+    res.json({ message: "Estado modificado", resultado });
+  } catch (error) {
+    res.status(error.statusCode || 500).json({ message: error.message });
+  }
+};
