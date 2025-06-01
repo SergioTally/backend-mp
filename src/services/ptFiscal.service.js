@@ -1,6 +1,8 @@
 const db = require("../../models");
 const ApiError = require("../utils/apiError");
 const PtFiscal = db.PT_FISCAL;
+const Persona = db.PT_PERSONA;
+const Fiscalia = db.PT_FISCALIA;
 
 exports.getAll = async () => {
   try {
@@ -9,15 +11,41 @@ exports.getAll = async () => {
         ACTIVO: true,
         FECHA_ELIMINO: null,
       },
+      include: [
+        {
+          model: Persona,
+          as: "PERSONA",
+          attributes: { exclude: ["FECHA_ELIMINO"] },
+        },
+        {
+          model: Fiscalia,
+          as: "FISCALIA",
+          attributes: { exclude: ["FECHA_ELIMINO"] },
+        },
+      ],
     });
   } catch (error) {
+    console.log("error--", error);
     throw new ApiError("Error al obtener ptFiscals");
   }
 };
 
 exports.getById = async (id) => {
   try {
-    const item = await PtFiscal.findByPk(id);
+    const item = await PtFiscal.findByPk(id, {
+      include: [
+        {
+          model: Persona,
+          as: "PERSONA",
+          attributes: { exclude: ["FECHA_ELIMINO"] },
+        },
+        {
+          model: Fiscalia,
+          as: "FISCALIA",
+          attributes: { exclude: ["FECHA_ELIMINO"] },
+        },
+      ],
+    });
     if (!item) throw new ApiError("PtFiscal no encontrado", 404);
     return item;
   } catch (error) {

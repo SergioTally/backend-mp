@@ -1,6 +1,11 @@
 const db = require("../../models");
 const ApiError = require("../utils/apiError");
 const PtCaso = db.PT_CASO;
+const PtFiscal = db.PT_FISCAL;
+const PtPersona = db.PT_PERSONA;
+const PtFiscalia = db.PT_FISCALIA;
+const EstadoCaso = db.PT_ESTADO_CASO;
+const TipoCaso = db.PT_TIPO_CASO;
 
 exports.getAll = async () => {
   try {
@@ -9,6 +14,30 @@ exports.getAll = async () => {
         ACTIVO: true,
         FECHA_ELIMINO: null,
       },
+      include: [
+        {
+          model: PtFiscal,
+          as: "FISCAL",
+          include: [
+            {
+              model: PtFiscalia,
+              as: "FISCALIA",
+            },
+            {
+              model: PtPersona,
+              as: "PERSONA",
+            },
+          ],
+        },
+        {
+          model: EstadoCaso,
+          as: "ESTADO_CASO",
+        },
+        {
+          model: TipoCaso,
+          as: "TIPO_CASO",
+        },
+      ],
     });
   } catch (error) {
     throw new ApiError("Error al obtener ptCasos");
@@ -17,7 +46,29 @@ exports.getAll = async () => {
 
 exports.getById = async (id) => {
   try {
-    const item = await PtCaso.findByPk(id);
+    const item = await PtCaso.findByPk(id, {
+      include: [
+        {
+          model: PtFiscal,
+          as: "FISCAL",
+          include: [
+            {
+              model: PtFiscalia,
+              as: "FISCALIA",
+            },
+          ],
+        },
+        {
+          model: EstadoCaso,
+          as: "ESTADO_CASO",
+        },
+        {
+          model: TipoCaso,
+          as: "TIPO_CASO",
+        },
+      ],
+    });
+
     if (!item) throw new ApiError("PtCaso no encontrado", 404);
     return item;
   } catch (error) {

@@ -1,6 +1,7 @@
 const Sequelize = require("sequelize");
+
 module.exports = function (sequelize, DataTypes) {
-  return sequelize.define(
+  const PT_CASO = sequelize.define(
     "PT_CASO",
     {
       ID_CASO: {
@@ -74,4 +75,23 @@ module.exports = function (sequelize, DataTypes) {
       ],
     }
   );
+
+  PT_CASO.associate = function (models) {
+    PT_CASO.belongsTo(models.PT_FISCAL, {
+      foreignKey: "ID_FISCAL",
+      as: "FISCAL",
+    });
+
+    PT_CASO.belongsTo(models.PT_ESTADO_CASO, {
+      foreignKey: "ID_ESTADO_CASO",
+      as: "ESTADO_CASO",
+    });
+
+    PT_CASO.belongsTo(models.PT_TIPO_CASO, {
+      foreignKey: "ID_TIPO_CASO",
+      as: "TIPO_CASO",
+    });
+  };
+
+  return PT_CASO;
 };
