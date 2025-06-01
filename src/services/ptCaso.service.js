@@ -1,7 +1,7 @@
 const db = require("../../models");
 const ApiError = require("../utils/apiError");
 const ExcelJS = require("exceljs");
-const { Op, literal } = require("sequelize");
+const { Op, literal, Sequelize } = require("sequelize");
 const PtCaso = db.PT_CASO;
 const PtFiscal = db.PT_FISCAL;
 const PtPersona = db.PT_PERSONA;
@@ -228,9 +228,6 @@ exports.generarExcel = async ({
     where[Op.and].push({ ID_ESTADO_CASO: estado });
   }
 
-  console.log("rol--", rol);
-  console.log("idFiscal--", idFiscal);
-
   if (rol === "FISCAL") {
     where[Op.and].push({ ID_FISCAL: idUsuario });
   } else if (rol === "ADMINISTRADOR" && idFiscal) {
@@ -313,4 +310,164 @@ exports.generarExcel = async ({
   });
 
   return await workbook.xlsx.writeBuffer();
+};
+
+exports.generarInformePDF = async (idCaso) => {
+  const logs = await Logs.findAll({
+    where: { TABLA: "PT_CASO", IDENTIFICADOR: idCaso },
+    include: [{ model: PtUsuario, as: "USUARIO" }],
+    order: [["FECHA_REGISTRO", "ASC"]],
+  });
+
+  const doc = new PDFDocument({ margin: 50 });
+  const buffers = [];
+  doc.on("data", buffers.push.bind(buffers));
+  doc.on("end", () => {});
+
+  // Encabezado
+  doc
+    .fontSize(20)
+    .fillColor("#0a0a0a")
+    .text(`Informe de Movimientos del Caso #${idCaso}`, {
+      align: "center",
+      underline: true,
+    });
+  doc.moveDown(1.5);
+
+  for (const log of logs) {
+    const fecha = new Date(log.FECHA_REGISTRO);
+    const fechaTexto = fecha.toLocaleString("es-GT", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    doc
+      .fontSize(11)
+      .fillColor("#666")
+      .text(`${fechaTexto}`, { continued: false })
+      .moveDown(0.3);
+
+    let descripcion = "";
+
+    switch (log.ACCION) {
+      case "ASIGNACION_FISCAL":
+        {
+          const anterior = JSON.parse(log.DATO_ANTERIOR || "{}");
+          const posterior = JSON.parse(log.DATO_POSTERIOR || "{}");
+          const fiscalAnterior = await obtenerNombreFiscal(anterior.ID_FISCAL);
+          const fiscalNuevo = await obtenerNombreFiscal(posterior.ID_FISCAL);
+
+          descripcion = `Fiscal cambiado de "${fiscalAnterior}" a "${fiscalNuevo}".`;
+        }
+        break;
+
+      case "CAMBIO_ESTADO":
+        {
+          const anterior = JSON.parse(log.DATO_ANTERIOR || "{}");
+          const posterior = JSON.parse(log.DATO_POSTERIOR || "{}");
+          const estadoAnterior = await obtenerNombreEstado(
+            anterior.ID_ESTADO_CASO
+          );
+          const estadoNuevo = await obtenerNombreEstado(
+            posterior.ID_ESTADO_CASO
+          );
+
+          descripcion = `Estado cambiado de "${estadoAnterior}" a "${estadoNuevo}".`;
+        }
+        break;
+
+      case "ASIGNACION_INVALIDA":
+        {
+          const datos = JSON.parse(log.DATO_POSTERIOR || "{}");
+          const fiscalNuevo = await obtenerNombreFiscal(datos.fiscalNuevo);
+          const fiscaliaNueva = await obtenerNombreFiscalia(
+            datos.fiscaliaNueva
+          );
+
+          descripcion = `Intento inválido de asignación al fiscal "${fiscalNuevo}" (Fiscalía: "${fiscaliaNueva}").`;
+        }
+        break;
+
+      default:
+        descripcion = `Acción: ${log.ACCION}. Comentario: ${log.COMENTARIO}`;
+        break;
+    }
+
+    doc
+      .fontSize(12)
+      .fillColor("#000")
+      .text(`Usuario: ${log.USUARIO?.USERNAME || "N/A"}`)
+      .moveDown(0.2);
+    doc.font("Helvetica").text(descripcion).moveDown(0.5);
+
+    doc
+      .strokeColor("#CCCCCC")
+      .lineWidth(0.5)
+      .moveTo(doc.x, doc.y)
+      .lineTo(doc.page.width - doc.options.margin, doc.y)
+      .stroke()
+      .moveDown(1);
+  }
+
+  doc.end();
+
+  return new Promise((resolve, reject) => {
+    doc.on("end", () => resolve(Buffer.concat(buffers)));
+    doc.on("error", reject);
+  });
+};
+
+// Funciones auxiliares
+
+async function obtenerNombreFiscal(id) {
+  if (!id) return "Sin Fiscal";
+  const fiscal = await PtFiscal.findByPk(id, {
+    include: [{ model: PtPersona, as: "PERSONA" }],
+  });
+  return fiscal
+    ? `${fiscal.PERSONA.PRIMER_NOMBRE} ${fiscal.PERSONA.PRIMER_APELLIDO}`
+    : "Fiscal desconocido";
+}
+
+async function obtenerNombreFiscalia(id) {
+  if (!id) return "Sin Fiscalía";
+  const fiscalia = await PtFiscalia.findByPk(id);
+  return fiscalia ? fiscalia.NOMBRE : "Fiscalía desconocida";
+}
+
+async function obtenerNombreEstado(id) {
+  if (!id) return "Sin Estado";
+  const estado = await EstadoCaso.findByPk(id);
+  return estado ? estado.NOMBRE : "Estado desconocido";
+}
+
+exports.getResumenCasos = async () => {
+  const [sinAsignar, asignados, finalizados] = await Promise.all([
+    PtCaso.count({
+      where: {
+        ID_FISCAL: null,
+        ACTIVO: true,
+        FECHA_ELIMINO: null,
+      },
+    }),
+    PtCaso.count({
+      where: {
+        ID_FISCAL: { [Op.not]: null },
+        ACTIVO: true,
+        FECHA_ELIMINO: null,
+      },
+    }),
+    PtCaso.count({
+      where: {
+        ID_ESTADO_CASO: 8,
+        ACTIVO: true,
+        FECHA_ELIMINO: null,
+      },
+    }),
+  ]);
+
+  return { sinAsignar, asignados, finalizados };
 };

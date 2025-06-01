@@ -98,3 +98,28 @@ exports.reporteExcel = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.generarInformePDF = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const buffer = await ptCasoService.generarInformePDF(id);
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=Informe_Caso_${id}.pdf`
+    );
+    res.send(buffer);
+  } catch (error) {
+    res.status(error.statusCode || 500).json({ message: error.message });
+  }
+};
+
+exports.resumenCasos = async (req, res) => {
+  try {
+    const resumen = await ptCasoService.getResumenCasos();
+    res.json(resumen);
+  } catch (error) {
+    res.status(500).json({ message: "Error al obtener resumen de casos" });
+  }
+};
