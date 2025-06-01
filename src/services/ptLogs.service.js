@@ -60,3 +60,25 @@ exports.remove = async (id) => {
     throw new ApiError("Error al eliminar el ptLogs: " + error.message, 400);
   }
 };
+
+exports.buscarPorTablaEIdentificador = async (tabla, identificador) => {
+  try {
+    return await PtLogs.findAll({
+      where: {
+        TABLA: tabla,
+        IDENTIFICADOR: identificador,
+      },
+      include: [
+        {
+          model: db.PT_USUARIO,
+          as: "USUARIO",
+          attributes: ["USERNAME"],
+        },
+      ],
+      order: [["FECHA_REGISTRO", "DESC"]],
+    });
+  } catch (error) {
+    console.log("error--", error);
+    throw new ApiError("Error al buscar logs", 500);
+  }
+};

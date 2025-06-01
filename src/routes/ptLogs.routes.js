@@ -205,4 +205,42 @@ router.delete(
   ptLogsController.remove
 );
 
+/**
+ * @swagger
+ * /ptLogs/buscar:
+ *   get:
+ *     summary: Buscar logs por tabla e identificador
+ *     tags: [PtLogs]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: tabla
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Nombre de la tabla
+ *       - in: path
+ *         name: identificador
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID del registro
+ *     responses:
+ *       200:
+ *         description: Lista de logs encontrados
+ *       400:
+ *         description: Parámetros inválidos
+ *       401:
+ *         description: Token inválido
+ *       403:
+ *         description: Acceso denegado
+ *       500:
+ *         description: Error del servidor
+ */
+router.get(
+  "/buscar/:tabla/:identificador",
+  ptLogsController.buscarPorTablaEIdentificador
+);
+
 module.exports = router;

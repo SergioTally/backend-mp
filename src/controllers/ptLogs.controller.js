@@ -44,3 +44,23 @@ exports.remove = async (req, res) => {
     res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
+
+exports.buscarPorTablaEIdentificador = async (req, res) => {
+  try {
+    const { tabla, identificador } = req.params;
+
+    if (!tabla || !identificador) {
+      return res
+        .status(400)
+        .json({ message: "tabla e identificador son obligatorios" });
+    }
+
+    const logs = await ptLogsService.buscarPorTablaEIdentificador(
+      tabla,
+      identificador
+    );
+    res.json(logs);
+  } catch (error) {
+    res.status(error.statusCode || 500).json({ message: error.message });
+  }
+};

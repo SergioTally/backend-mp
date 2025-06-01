@@ -1,6 +1,7 @@
 const Sequelize = require("sequelize");
+
 module.exports = function (sequelize, DataTypes) {
-  return sequelize.define(
+  const PT_LOGS = sequelize.define(
     "PT_LOGS",
     {
       ID_LOG: {
@@ -65,4 +66,12 @@ module.exports = function (sequelize, DataTypes) {
       ],
     }
   );
+  PT_LOGS.associate = (models) => {
+    PT_LOGS.belongsTo(models.PT_USUARIO, {
+      foreignKey: "ID_USUARIO",
+      as: "USUARIO",
+    });
+  };
+
+  return PT_LOGS;
 };
