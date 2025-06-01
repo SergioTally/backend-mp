@@ -7,7 +7,25 @@ const bcrypt = require("bcrypt");
 exports.getAll = async () => {
   try {
     return await Usuario.findAll({
-      attributes: { exclude: ["PASSWORD"] },
+      attributes: { exclude: ["PASSWORD", "FECHA_ELIMINO"] },
+      where: {
+        ACTIVO: true,
+      },
+      include: [
+        {
+          model: db.PT_ROLE_PERMISO_USUARIO,
+          as: "rolesAsignados",
+          include: [
+            {
+              model: db.PT_ROLE,
+              as: "ROL",
+              attributes: ["ID_ROLE", "NOMBRE"],
+              where: { ACTIVO: true },
+              required: false,
+            },
+          ],
+        },
+      ],
     });
   } catch (error) {
     throw new ApiError("Error al obtener usuarios");
