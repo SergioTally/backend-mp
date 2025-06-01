@@ -1,5 +1,6 @@
 const db = require("../../models");
 const ApiError = require("../utils/apiError");
+const Sequelize = require("sequelize");
 const PtPersona = db.PT_PERSONA;
 
 exports.getAll = async () => {

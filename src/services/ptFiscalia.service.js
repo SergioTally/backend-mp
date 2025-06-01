@@ -1,5 +1,6 @@
 const db = require("../../models");
 const ApiError = require("../utils/apiError");
+const Sequelize = require("sequelize");
 const PtFiscalia = db.PT_FISCALIA;
 
 exports.getAll = async () => {

@@ -1,5 +1,6 @@
 const db = require("../../models");
 const ApiError = require("../utils/apiError");
+const Sequelize = require("sequelize");
 const PtFiscal = db.PT_FISCAL;
 const Persona = db.PT_PERSONA;
 const Fiscalia = db.PT_FISCALIA;
