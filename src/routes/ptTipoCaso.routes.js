@@ -77,6 +77,16 @@ router.get(
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - NOMBRE
+ *               - ACTIVO
+ *             properties:
+ *               NOMBRE:
+ *                 type: string
+ *                 example: "Violencia intrafamiliar"
+ *               ACTIVO:
+ *                 type: boolean
+ *                 example: true
  *     responses:
  *       201:
  *         description: Recurso creado
@@ -115,6 +125,13 @@ router.post(
  *         application/json:
  *           schema:
  *             type: object
+ *             properties:
+ *               NOMBRE:
+ *                 type: string
+ *                 example: "Penal"
+ *               ACTIVO:
+ *                 type: boolean
+ *                 example: false
  *     responses:
  *       200:
  *         description: Recurso actualizado
