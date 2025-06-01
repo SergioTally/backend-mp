@@ -1,5 +1,6 @@
 const db = require("../../models");
 const ApiError = require("../utils/apiError");
+const Sequelize = require("sequelize");
 const PtPermiso = db.PT_PERMISO;
 
 exports.getAll = async () => {
