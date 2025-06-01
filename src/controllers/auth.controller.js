@@ -16,6 +16,7 @@ exports.login = async (req, res) => {
         USERNAME: nombre,
         ACTIVO: true,
       },
+      attributes: ["ID_USUARIO", "USERNAME", "PASSWORD"],
     });
 
     if (!usuario) {
