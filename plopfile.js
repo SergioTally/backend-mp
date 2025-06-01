@@ -11,17 +11,17 @@ module.exports = function (plop) {
     actions: [
       {
         type: 'add',
-        path: 'controllers/{{camelCase name}}Controller.js',
+        path: 'src/controllers/{{camelCase name}}.controller.js',
         templateFile: 'plop-templates/controller.hbs'
       },
       {
         type: 'add',
-        path: 'routes/{{camelCase name}}Routes.js',
+        path: 'src/routes/{{camelCase name}}.routes.js',
         templateFile: 'plop-templates/route.hbs'
       },
       {
         type: 'add',
-        path: 'services/{{camelCase name}}Service.js',
+        path: 'src/services/{{camelCase name}}.service.js',
         templateFile: 'plop-templates/service.hbs'
       }
     ]
