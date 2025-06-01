@@ -25,7 +25,7 @@ const authorizeRoles = require("../../middlewares/authorizeRoles");
 router.get(
   "/",
   verifyToken,
-  authorizeRoles("ADMINISTRADOR"),
+  authorizeRoles("ADMINISTRADOR", "FISCAL"),
   ptCasoController.getAll
 );
 
@@ -59,7 +59,7 @@ router.get(
 router.get(
   "/:id",
   verifyToken,
-  authorizeRoles("ADMINISTRADOR"),
+  authorizeRoles("ADMINISTRADOR", "FISCAL"),
   ptCasoController.getById
 );
 
@@ -114,7 +114,7 @@ router.get(
 router.post(
   "/",
   verifyToken,
-  authorizeRoles("ADMINISTRADOR"),
+  authorizeRoles("ADMINISTRADOR", "FISCAL"),
   ptCasoController.create
 );
 
@@ -176,7 +176,7 @@ router.post(
 router.put(
   "/:id",
   verifyToken,
-  authorizeRoles("ADMINISTRADOR"),
+  authorizeRoles("ADMINISTRADOR", "FISCAL"),
   ptCasoController.update
 );
 
@@ -282,7 +282,7 @@ router.post(
 router.post(
   "/modificarestado",
   verifyToken,
-  authorizeRoles("ADMINISTRADOR"),
+  authorizeRoles("ADMINISTRADOR", "FISCAL"),
   ptCasoController.modificarEstado
 );
 
@@ -340,8 +340,75 @@ router.post(
 router.post(
   "/reporte",
   verifyToken,
-  authorizeRoles("ADMINISTRADOR", "FISCAL", "ANALISTA"),
+  authorizeRoles("ADMINISTRADOR", "FISCAL"),
   ptCasoController.reporteExcel
+);
+
+/**
+ * @swagger
+ * /ptCaso/{id}/informe-pdf:
+ *   get:
+ *     summary: Descargar informe PDF con logs del caso interpretados
+ *     tags: [PtCaso]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID del caso
+ *     responses:
+ *       200:
+ *         description: Archivo PDF generado exitosamente
+ *         content:
+ *           application/pdf:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       404:
+ *         description: Caso no encontrado
+ *       500:
+ *         description: Error del servidor
+ */
+router.get(
+  "/:id/informe-pdf",
+  verifyToken,
+  authorizeRoles("ADMINISTRADOR", "FISCAL"),
+  ptCasoController.generarInformePDF
+);
+
+/**
+ * @swagger
+ * /ptCaso/resumen:
+ *   get:
+ *     summary: Obtener resumen de casos (sin asignar, asignados, finalizados)
+ *     tags: [PtCaso]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Resumen de casos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 sinAsignar:
+ *                   type: integer
+ *                 asignados:
+ *                   type: integer
+ *                 finalizados:
+ *                   type: integer
+ *       500:
+ *         description: Error del servidor
+ */
+router.post(
+  "/resumen",
+  verifyToken,
+  authorizeRoles("ADMINISTRADOR", "FISCAL"),
+  ptCasoController.resumenCasos
 );
 
 module.exports = router;

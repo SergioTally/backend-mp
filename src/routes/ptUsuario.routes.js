@@ -22,7 +22,7 @@ const authorizeRoles = require('../../middlewares/authorizeRoles');
  *       500:
  *         description: Error del servidor
  */
-router.get("/", verifyToken, authorizeRoles('ADMINISTRADOR'), ptUsuarioController.getAll);
+router.get("/", verifyToken, authorizeRoles('ADMINISTRADOR', "FISCAL"), ptUsuarioController.getAll);
 
 /**
  * @swagger
@@ -51,7 +51,7 @@ router.get("/", verifyToken, authorizeRoles('ADMINISTRADOR'), ptUsuarioControlle
  *       500:
  *         description: Error del servidor
  */
-router.get("/:id", verifyToken, authorizeRoles('ADMINISTRADOR'), ptUsuarioController.getById);
+router.get("/:id", verifyToken, authorizeRoles('ADMINISTRADOR', "FISCAL"), ptUsuarioController.getById);
 
 /**
  * @swagger

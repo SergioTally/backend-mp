@@ -25,7 +25,7 @@ const authorizeRoles = require("../../middlewares/authorizeRoles");
 router.get(
   "/",
   verifyToken,
-  authorizeRoles("ADMINISTRADOR"),
+  authorizeRoles("ADMINISTRADOR", "FISCAL"),
   ptPersonaController.getAll
 );
 
@@ -59,7 +59,7 @@ router.get(
 router.get(
   "/:id",
   verifyToken,
-  authorizeRoles("ADMINISTRADOR"),
+  authorizeRoles("ADMINISTRADOR", "FISCAL"),
   ptPersonaController.getById
 );
 
@@ -111,7 +111,7 @@ router.get(
 router.post(
   "/",
   verifyToken,
-  authorizeRoles("ADMINISTRADOR"),
+  authorizeRoles("ADMINISTRADOR", "FISCAL"),
   ptPersonaController.create
 );
 
@@ -172,7 +172,7 @@ router.post(
 router.put(
   "/:id",
   verifyToken,
-  authorizeRoles("ADMINISTRADOR"),
+  authorizeRoles("ADMINISTRADOR", "FISCAL"),
   ptPersonaController.update
 );
 
