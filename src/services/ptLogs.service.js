@@ -79,7 +79,6 @@ exports.buscarPorTablaEIdentificador = async (tabla, identificador) => {
       order: [["FECHA_REGISTRO", "DESC"]],
     });
   } catch (error) {
-    console.log("error--", error);
     throw new ApiError("Error al buscar logs", 500);
   }
 };

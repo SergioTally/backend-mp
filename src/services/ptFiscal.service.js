@@ -26,7 +26,6 @@ exports.getAll = async () => {
       ],
     });
   } catch (error) {
-    console.log("error--", error);
     throw new ApiError("Error al obtener ptFiscals");
   }
 };
